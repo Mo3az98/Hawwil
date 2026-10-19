@@ -1,0 +1,32 @@
+name: Build Windows app
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['windows/**', 'web/index.html', 'web/version.json']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install
+        working-directory: windows
+      - run: node prepare.js
+        working-directory: windows
+      - run: npx electron-builder --win --publish never
+        working-directory: windows
+      - id: v
+        shell: bash
+        run: echo "V=$(node -p "require('./web/version.json').version")" >> $GITHUB_OUTPUT
+      - name: Publish to Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.v.outputs.V }}
+          name: Hawwil v${{ steps.v.outputs.V }}
+          body: "Windows: Hawwil Setup (installer) or Hawwil (portable). Android: Hawwil.apk"
+          make_latest: true
+          files: windows/dist/*.exe
