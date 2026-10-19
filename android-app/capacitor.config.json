@@ -1,0 +1,8 @@
+{
+  "appId": "app.hawwil.mobile",
+  "appName": "حوّل",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
